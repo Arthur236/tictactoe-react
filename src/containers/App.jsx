@@ -6,7 +6,8 @@ import AppComponent from "../components/App";
 class App extends React.Component {
   state = {
     gameStarted: false,
-    modalOpen: false
+    modalOpen: false,
+    winner: ""
   };
 
   originalBoard;
@@ -31,9 +32,7 @@ class App extends React.Component {
   }
 
   startGame = () => {
-    this.setState({
-      gameStarted: true
-    });
+    this.setState({ gameStarted: true });
 
     this.originalBoard = Array.from(Array(9).keys());
 
@@ -49,7 +48,13 @@ class App extends React.Component {
 
   turnClick = (e) => {
     if (this.state.gameStarted) {
-      this.turn(e.target.id, this.humanPlayer);
+      if (typeof this.originalBoard[e.target.id] === "number") {
+        this.turn(e.target.id, this.humanPlayer);
+
+        if (!this.checkTie()) {
+          this.turn(this.bestSpot(), this.aiPlayer);
+        }
+      }
     }
   };
 
@@ -71,10 +76,7 @@ class App extends React.Component {
 
     for(let [index, win] of this.winCombos.entries()) {
       if (win.every(elem => plays.indexOf(elem) > -1)) {
-        gameWon = {
-          index,
-          player
-        }
+        gameWon = { index, player }
         break;
       }
     }
@@ -83,18 +85,45 @@ class App extends React.Component {
   };
 
   gameOver = (gameWon) => {
-    for(let index of this.winCombos[gameWon.index]) {
-      document.getElementById(index.toString()).style.backgroundColor = gameWon.player === this.humanPlayer ?
-        "#2196f3" : "#f50057";
+    for(let idx of this.winCombos[gameWon.index]) {
+      document.getElementById(idx).style.backgroundColor = gameWon.player === this.humanPlayer ? "#2196f3" : "#f50057";
     }
 
-    this.setState({
-      gameStarted: false
-    });
+    this.setState({ gameStarted: false });
+
+    this.declareWinner(gameWon.player === this.humanPlayer ? "You win! 🥳" : "You lose! 😭");
+  };
+
+  bestSpot = () => {
+    return this.emptySquares()[0];
+  };
+
+  emptySquares = () => {
+    return this.originalBoard.filter(s => typeof s === "number");
+  };
+
+  checkTie = () => {
+    if (this.emptySquares().length === 0) {
+      this.cells.forEach(cell => {
+        cell.style.backgroundColor = "#4caf50";
+      });
+
+      this.setState({ gameStarted: false });
+      this.declareWinner("Game Tied!");
+
+      return true;
+    }
+
+    return false;
+  };
+
+  declareWinner = (winner) => {
+    this.setState({ gameStarted: false, winner });
+    this.openModal();
   };
 
   render() {
-    const { modalOpen } = this.state;
+    const { modalOpen, winner } = this.state;
 
     return (
       <React.Fragment>
@@ -108,11 +137,11 @@ class App extends React.Component {
         >
           <Header icon>
             <Icon name="chess queen"/>
-            A Game has not yet started
+            {winner}
           </Header>
 
           <Modal.Content>
-            <p>Would you like to start one now?</p>
+            <p>Start a new game?</p>
           </Modal.Content>
 
           <Modal.Actions>

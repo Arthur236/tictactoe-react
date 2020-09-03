@@ -4,7 +4,7 @@ import { Button, Container, Header, Table } from "semantic-ui-react";
 import "./App.css";
 
 const App = (props) => {
-  const { opponent, startHumanGame, startBasicGame, startUnbeatableGame, turnClick } = props;
+  const { opponent, startHumanGame, startBasicGame, startUnbeatableGame, textColor, turnClick } = props;
 
   return (
     <div>
@@ -15,7 +15,7 @@ const App = (props) => {
         <Button className="start-button" content="Basic AI" size="huge" color="teal" onClick={startBasicGame}/>
         <Button className="start-button" content="Unbeatable AI" size="huge" color="red" onClick={startUnbeatableGame}/>
 
-        <Header as="h3">Playing Against {opponent}</Header>
+        <Header as="h3">You are playing against: <span style={{ color: `${textColor}` }}>{opponent}</span></Header>
 
         <Table basic="very" className="board" celled collapsing>
           <Table.Body>
@@ -39,6 +39,8 @@ const App = (props) => {
           </Table.Body>
         </Table>
       </Container>
+
+      <p className="copyright">A project by ©Arthur Thungu, 2020</p>
     </div>
   );
 };

@@ -8,12 +8,13 @@ class App extends React.Component {
     gameStarted: false,
     modalOpen: false,
     opponent: "",
-    winner: ""
+    winner: "",
+    xIsNext: true
   };
 
   originalBoard;
-  humanPlayer = "O";
-  aiPlayer = "X";
+  humanPlayer = "X";
+  aiPlayer = "O";
   cells;
 
   winCombos = [
@@ -54,16 +55,28 @@ class App extends React.Component {
     this.startGame("Unbeatable AI");
   };
 
+  isHuman = () => this.state.opponent === "Human";
+  isBasicAI = () => this.state.opponent === "Basic AI";
+  isUnbeatableAI = () => this.state.opponent === "Unbeatable AI";
+
   openModal = () => this.setState({ modalOpen: true });
 
   closeModal = () => this.setState({ modalOpen: false });
 
   turnClick = (e) => {
-    if (this.state.gameStarted) {
-      if (typeof this.originalBoard[e.target.id] === "number") {
-        this.turn(e.target.id, this.humanPlayer);
+    if (this.state.gameStarted && typeof this.originalBoard[e.target.id] === "number") {
+      if (this.isHuman()) {
+        if (this.state.xIsNext) {
+          this.turn(e.target.id, this.humanPlayer);
+          this.setState({ xIsNext: false });
+        } else {
+          this.turn(e.target.id, this.aiPlayer);
+          this.setState({ xIsNext: true });
+        }
+      } else {
+        this.turn(e.target.id, this.humanPlayer)
 
-        if (!this.checkTie() && this.state.opponent !== "Human") {
+        if (!this.checkTie() && !this.checkWin(this.originalBoard, this.humanPlayer)) {
           this.turn(this.bestSpot(), this.aiPlayer);
         }
       }
@@ -71,13 +84,15 @@ class App extends React.Component {
   };
 
   turn = (squareId, player) => {
-    this.originalBoard[squareId] = player;
-    document.getElementById(squareId).innerText = player;
+    if (this.state.gameStarted) {
+      this.originalBoard[squareId] = player;
+      document.getElementById(squareId).innerText = player;
 
-    let gameWon = this.checkWin(this.originalBoard, player);
+      let gameWon = this.checkWin(this.originalBoard, player);
 
-    if (gameWon) {
-      this.gameOver(gameWon);
+      if (gameWon) {
+        this.gameOver(gameWon);
+      }
     }
   };
 
@@ -103,11 +118,15 @@ class App extends React.Component {
       document.getElementById(idx).style.backgroundColor = gameWon.player === this.humanPlayer ? "#2196f3" : "#f50057";
     }
 
-    this.declareWinner(gameWon.player === this.humanPlayer ? "You win! 🥳" : "You lose! 😭");
+    if (!this.isHuman()) {
+      this.declareWinner(gameWon.player === this.humanPlayer ? "You win! 🥳" : "You lose! 😭");
+    } else {
+      this.declareWinner(gameWon.player === this.humanPlayer ? "Player 1 Wins!" : "Player 2 Wins!");
+    }
   };
 
   bestSpot = () => {
-    if (this.state.opponent === "Basic AI") {
+    if (this.isBasicAI()) {
       return this.emptySquares()[0];
     }
 
@@ -195,6 +214,15 @@ class App extends React.Component {
 
   render() {
     const { modalOpen, opponent, winner } = this.state;
+    let textColor = "#000000";
+
+    if (this.isHuman()) {
+      textColor = "#2185d0";
+    } else if (this.isBasicAI()) {
+      textColor = "#00b5ad";
+    } else if (this.isUnbeatableAI()) {
+      textColor = "#db2828";
+    }
 
     return (
       <React.Fragment>
@@ -203,6 +231,7 @@ class App extends React.Component {
           startHumanGame={this.startHumanGame}
           startBasicGame={this.startBasicGame}
           startUnbeatableGame={this.startUnbeatableGame}
+          textColor={textColor}
           turnClick={this.turnClick}
         />
 

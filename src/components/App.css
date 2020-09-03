@@ -21,6 +21,7 @@
   text-align: center !important;
   vertical-align: middle !important;
   font-size: 70px;
+  font-family: 'Grandstander', cursive;
   padding: 0 !important;
   cursor: pointer;
   border-color: rgba(34, 36, 38, .5) !important;
@@ -28,4 +29,13 @@
 
 .modal .content {
   text-align: center;
+}
+
+.copyright {
+  position: absolute;
+  bottom: 0;
+  margin: auto;
+  left: 50%;
+  -webkit-transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%);
 }

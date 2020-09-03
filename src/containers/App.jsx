@@ -7,6 +7,7 @@ class App extends React.Component {
   state = {
     gameStarted: false,
     modalOpen: false,
+    opponent: "",
     winner: ""
   };
 
@@ -28,11 +29,10 @@ class App extends React.Component {
 
   componentDidMount() {
     this.cells = document.querySelectorAll(".cell");
-    this.startGame();
   }
 
-  startGame = () => {
-    this.setState({ gameStarted: true });
+  startGame = (opponent) => {
+    this.setState({ gameStarted: true, opponent });
 
     this.originalBoard = Array.from(Array(9).keys());
 
@@ -40,6 +40,18 @@ class App extends React.Component {
       cell.innerText = "";
       cell.style.removeProperty("background-color");
     });
+  };
+
+  startHumanGame = () => {
+    this.startGame("Human");
+  };
+
+  startBasicGame = () => {
+    this.startGame("Basic AI");
+  };
+
+  startUnbeatableGame = () => {
+    this.startGame("Unbeatable AI");
   };
 
   openModal = () => this.setState({ modalOpen: true });
@@ -51,7 +63,7 @@ class App extends React.Component {
       if (typeof this.originalBoard[e.target.id] === "number") {
         this.turn(e.target.id, this.humanPlayer);
 
-        if (!this.checkTie()) {
+        if (!this.checkTie() && this.state.opponent !== "Human") {
           this.turn(this.bestSpot(), this.aiPlayer);
         }
       }
@@ -85,17 +97,21 @@ class App extends React.Component {
   };
 
   gameOver = (gameWon) => {
+    this.setState({ gameStarted: false });
+
     for(let idx of this.winCombos[gameWon.index]) {
       document.getElementById(idx).style.backgroundColor = gameWon.player === this.humanPlayer ? "#2196f3" : "#f50057";
     }
-
-    this.setState({ gameStarted: false });
 
     this.declareWinner(gameWon.player === this.humanPlayer ? "You win! 🥳" : "You lose! 😭");
   };
 
   bestSpot = () => {
-    return this.emptySquares()[0];
+    if (this.state.opponent === "Basic AI") {
+      return this.emptySquares()[0];
+    }
+
+    return this.minimax(this.originalBoard, this.aiPlayer).index;
   };
 
   emptySquares = () => {
@@ -122,12 +138,73 @@ class App extends React.Component {
     this.openModal();
   };
 
+  minimax = (newBoard, player) => {
+    const availableSpots = this.emptySquares();
+
+    // Check terminal states, ie win states
+    if (this.checkWin(newBoard, this.humanPlayer)) {
+      return { score: -10 };
+    } else if (this.checkWin(newBoard, this.aiPlayer)) {
+      return { score: 10 };
+    } else if (availableSpots.length === 0) {
+      return { score: 0 };
+    }
+
+    const moves = [];
+    availableSpots.forEach((spot, idx) => {
+      const move = {};
+      move.index = newBoard[availableSpots[idx]];
+      newBoard[availableSpots[idx]] = player;
+
+      if (player === this.aiPlayer) {
+        const result = this.minimax(newBoard, this.humanPlayer);
+        move.score = result.score;
+      } else {
+        const result = this.minimax(newBoard, this.aiPlayer);
+        move.score = result.score;
+      }
+
+      newBoard[availableSpots[idx]] = move.index;
+      moves.push(move);
+    });
+
+    let bestMove;
+
+    if (player === this.aiPlayer) {
+      let bestScore = -10000;
+
+      moves.forEach((move, i) => {
+        if (moves[i].score > bestScore) {
+          bestScore = moves[i].score;
+          bestMove = i;
+        }
+      });
+    } else {
+      let bestScore = 10000;
+
+      moves.forEach((move, i) => {
+        if (moves[i].score < bestScore) {
+          bestScore = moves[i].score;
+          bestMove = i;
+        }
+      });
+    }
+
+    return moves[bestMove];
+  };
+
   render() {
-    const { modalOpen, winner } = this.state;
+    const { modalOpen, opponent, winner } = this.state;
 
     return (
       <React.Fragment>
-        <AppComponent startGame={this.startGame} turnClick={this.turnClick}/>
+        <AppComponent
+          opponent={opponent}
+          startHumanGame={this.startHumanGame}
+          startBasicGame={this.startBasicGame}
+          startUnbeatableGame={this.startUnbeatableGame}
+          turnClick={this.turnClick}
+        />
 
         <Modal
           basic
@@ -150,7 +227,14 @@ class App extends React.Component {
             </Button>
             <Button color="green" inverted onClick={() => {
               this.closeModal();
-              this.startGame();
+
+              if (opponent === "Human") {
+                this.startHumanGame();
+              } else if (opponent === "Basic AI") {
+                this.startBasicGame();
+              } else if (opponent === "Unbeatable AI") {
+                this.startUnbeatableGame();
+              }
             }}>
               <Icon name="checkmark"/> Yes
             </Button>

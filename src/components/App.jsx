@@ -1,14 +1,22 @@
 import React from "react";
-import { Button, Container, Table } from "semantic-ui-react";
+import { Button, Container, Header, Table } from "semantic-ui-react";
 
 import "./App.css";
 
 const App = (props) => {
-  const { startGame, turnClick } = props;
+  const { opponent, startHumanGame, startBasicGame, startUnbeatableGame, turnClick } = props;
 
   return (
     <div>
       <Container textAlign="center">
+        <Header as="h2" className="app-header">Choose An Opponent</Header>
+
+        <Button className="start-button" content="Human" size="huge" color="blue" onClick={startHumanGame}/>
+        <Button className="start-button" content="Basic AI" size="huge" color="teal" onClick={startBasicGame}/>
+        <Button className="start-button" content="Unbeatable AI" size="huge" color="red" onClick={startUnbeatableGame}/>
+
+        <Header as="h3">Playing Against {opponent}</Header>
+
         <Table basic="very" className="board" celled collapsing>
           <Table.Body>
             <Table.Row>
@@ -30,8 +38,6 @@ const App = (props) => {
             </Table.Row>
           </Table.Body>
         </Table>
-
-        <Button className="start-button" content="Start Game" size="huge" primary onClick={startGame}/>
       </Container>
     </div>
   );

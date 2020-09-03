@@ -8,15 +8,17 @@
 }
 
 .board td {
-  min-height: 100px;
-  min-width: 100px;
-  text-align: center;
-  vertical-align: middle;
+  height: 150px;
+  width: 150px;
+  text-align: center !important;
+  vertical-align: middle !important;
   font-size: 70px;
+  padding: 0 !important;
   cursor: pointer;
 }
 
 .endgame {
+  display: none;
   position: absolute;
   margin: auto;
   left: 50%;
@@ -27,4 +29,8 @@
 
 .start-button {
   margin-top: 50px !important;
+}
+
+.modal .content {
+  text-align: center;
 }

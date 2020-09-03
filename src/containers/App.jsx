@@ -27,7 +27,7 @@ class App extends React.Component {
 
   componentDidMount() {
     this.cells = document.querySelectorAll(".cell");
-    console.log(this.cells);
+    this.startGame();
   }
 
   startGame = () => {
@@ -35,7 +35,6 @@ class App extends React.Component {
       gameStarted: true
     });
 
-    document.querySelector(".endgame").style.display = "none";
     this.originalBoard = Array.from(Array(9).keys());
 
     this.cells.forEach(cell => {
@@ -51,14 +50,47 @@ class App extends React.Component {
   turnClick = (e) => {
     if (this.state.gameStarted) {
       this.turn(e.target.id, this.humanPlayer);
-    } else {
-      this.openModal();
     }
   };
 
   turn = (squareId, player) => {
     this.originalBoard[squareId] = player;
     document.getElementById(squareId).innerText = player;
+
+    let gameWon = this.checkWin(this.originalBoard, player);
+
+    if (gameWon) {
+      this.gameOver(gameWon);
+    }
+  };
+
+  checkWin = (board, player) => {
+    // Check plays that have already been made by a player
+    const plays = board.reduce((a, e, i) => (e === player) ? a.concat(i) : a, []);
+    let gameWon = null;
+
+    for(let [index, win] of this.winCombos.entries()) {
+      if (win.every(elem => plays.indexOf(elem) > -1)) {
+        gameWon = {
+          index,
+          player
+        }
+        break;
+      }
+    }
+
+    return gameWon;
+  };
+
+  gameOver = (gameWon) => {
+    for(let index of this.winCombos[gameWon.index]) {
+      document.getElementById(index.toString()).style.backgroundColor = gameWon.player === this.humanPlayer ?
+        "#2196f3" : "#f50057";
+    }
+
+    this.setState({
+      gameStarted: false
+    });
   };
 
   render() {

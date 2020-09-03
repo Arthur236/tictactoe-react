@@ -1,5 +1,5 @@
 import React from "react";
-import { Button, Container, Message, Table } from "semantic-ui-react";
+import { Button, Container, Table } from "semantic-ui-react";
 
 import "./App.css";
 
@@ -30,13 +30,6 @@ const App = (props) => {
             </Table.Row>
           </Table.Body>
         </Table>
-
-        <div className="endgame">
-          <Message>
-            <Message.Header>Game Over</Message.Header>
-            <p/>
-          </Message>
-        </div>
 
         <Button className="start-button" content="Start Game" size="huge" primary onClick={startGame}/>
       </Container>

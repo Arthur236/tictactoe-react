@@ -17,16 +17,6 @@
   cursor: pointer;
 }
 
-.endgame {
-  display: none;
-  position: absolute;
-  margin: auto;
-  left: 50%;
-  top: 50%;
-  -webkit-transform: translate(-50%, -50%);
-  transform: translate(-50%, -50%);
-}
-
 .start-button {
   margin-top: 50px !important;
 }

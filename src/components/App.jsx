@@ -1,5 +1,5 @@
 import React from "react";
-import { Button, Container, Header, Table } from "semantic-ui-react";
+import { Button, Container, Header, Menu, Table } from "semantic-ui-react";
 
 import "./App.css";
 
@@ -8,16 +8,22 @@ const App = (props) => {
 
   return (
     <div>
+      <Menu fixed='top' inverted>
+        <Container>
+          <Menu.Item as='a' header>Tic Tac Toe</Menu.Item>
+        </Container>
+      </Menu>
+
       <Container textAlign="center">
         <Header as="h2" className="app-header">Choose An Opponent</Header>
 
-        <Button className="start-button" content="Human" size="huge" color="blue" onClick={startHumanGame}/>
-        <Button className="start-button" content="Basic AI" size="huge" color="teal" onClick={startBasicGame}/>
-        <Button className="start-button" content="Unbeatable AI" size="huge" color="red" onClick={startUnbeatableGame}/>
+        <Button className="start-button" content="Human" size="large" color="blue" onClick={startHumanGame}/>
+        <Button className="start-button" content="Basic AI" size="large" color="teal" onClick={startBasicGame}/>
+        <Button className="start-button" content="Unbeatable AI" size="large" color="red" onClick={startUnbeatableGame}/>
 
         <Header as="h3">You are playing against: <span style={{ color: `${textColor}` }}>{opponent}</span></Header>
 
-        <Table basic="very" className="board" celled collapsing>
+        <Table basic="very" className="board" celled collapsing fixed unstackable>
           <Table.Body>
             <Table.Row>
               <Table.Cell id={0} className="cell" onClick={turnClick}/>

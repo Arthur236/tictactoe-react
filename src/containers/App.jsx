@@ -139,7 +139,8 @@ class App extends React.Component {
 
   bestSpot = () => {
     if (this.isBasicAI()) {
-      return this.emptySquares()[0];
+      const emptySpaces = this.emptySquares();
+      return emptySpaces[Math.floor(Math.random() * emptySpaces.length)];
     }
 
     return this.minimax(this.originalBoard, this.aiPlayer).index;

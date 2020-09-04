@@ -1,7 +1,10 @@
 import React from "react";
 import { Button, Header, Icon, Modal } from "semantic-ui-react";
+import { SemanticToastContainer, toast } from "react-semantic-toasts";
 
 import AppComponent from "../components/App";
+
+import "react-semantic-toasts/styles/react-semantic-alert.css";
 
 class App extends React.Component {
   state = {
@@ -74,12 +77,21 @@ class App extends React.Component {
           this.setState({ xIsNext: true });
         }
       } else {
-        this.turn(e.target.id, this.humanPlayer)
+        this.turn(e.target.id, this.humanPlayer);
 
         if (!this.checkTie() && !this.checkWin(this.originalBoard, this.humanPlayer)) {
           this.turn(this.bestSpot(), this.aiPlayer);
         }
       }
+    } else {
+      toast({
+        type: "info",
+        icon: "envelope",
+        title: "Info",
+        description: "Choose an opponent...",
+        animation: "jiggle",
+        time: 5000
+      });
     }
   };
 
@@ -101,9 +113,9 @@ class App extends React.Component {
     const plays = board.reduce((a, e, i) => (e === player) ? a.concat(i) : a, []);
     let gameWon = null;
 
-    for(let [index, win] of this.winCombos.entries()) {
+    for (let [index, win] of this.winCombos.entries()) {
       if (win.every(elem => plays.indexOf(elem) > -1)) {
-        gameWon = { index, player }
+        gameWon = { index, player };
         break;
       }
     }
@@ -114,14 +126,14 @@ class App extends React.Component {
   gameOver = (gameWon) => {
     this.setState({ gameStarted: false });
 
-    for(let idx of this.winCombos[gameWon.index]) {
+    for (let idx of this.winCombos[gameWon.index]) {
       document.getElementById(idx).style.backgroundColor = gameWon.player === this.humanPlayer ? "#2196f3" : "#f50057";
     }
 
     if (!this.isHuman()) {
       this.declareWinner(gameWon.player === this.humanPlayer ? "You win! 🥳" : "You lose! 😭");
     } else {
-      this.declareWinner(gameWon.player === this.humanPlayer ? "Player 1 Wins!" : "Player 2 Wins!");
+      this.declareWinner(gameWon.player === this.humanPlayer ? "Player 1 Wins! 🥳" : "Player 2 Wins! 🥳");
     }
   };
 
@@ -226,6 +238,8 @@ class App extends React.Component {
 
     return (
       <React.Fragment>
+        <SemanticToastContainer/>
+
         <AppComponent
           opponent={opponent}
           startHumanGame={this.startHumanGame}
